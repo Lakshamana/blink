@@ -1,3 +1,5 @@
+use crate::led::Led;
+
 const CYCLES_PER_MS: u32 = 72_000;
 const SPEED_FACTOR: u32 = 2;
 
@@ -69,9 +71,13 @@ impl MorseTiming {
     }
 }
 
-pub fn blink_morse<LED>(led: &mut LED, text: &str, timing: &MorseTiming) -> Result<(), LED::Error>
+pub fn blink_morse<PIN>(
+    led: &mut Led<PIN>,
+    text: &str,
+    timing: &MorseTiming,
+) -> Result<(), PIN::Error>
 where
-    LED: embedded_hal::digital::v2::OutputPin,
+    PIN: embedded_hal::digital::v2::OutputPin,
 {
     for letter in text.chars() {
         let char_morse = letter.to_morse();
@@ -86,35 +92,34 @@ where
     Ok(())
 }
 
-pub fn blink_pattern<LED>(
-    led: &mut LED,
+pub fn blink_pattern<PIN>(
+    led: &mut Led<PIN>,
     pattern: &str,
     timing: &MorseTiming,
-) -> Result<(), LED::Error>
+) -> Result<(), PIN::Error>
 where
-    LED: embedded_hal::digital::v2::OutputPin,
+    PIN: embedded_hal::digital::v2::OutputPin,
 {
     for (idx, symbol) in pattern.chars().enumerate() {
         match symbol {
             '.' => {
-                led.set_low()?;
+                led.on()?;
                 delay_ms(timing.dot_ms);
-                led.set_high()?;
+                led.off()?;
             }
             '-' => {
-                led.set_low()?;
+                led.on()?;
                 delay_ms(timing.dash_ms());
-                led.set_high()?;
+                led.off()?;
             }
             _ => continue,
         }
 
-        // Add symbol gap between symbols (but not after the last one)
         if idx < pattern.len() - 1 {
             delay_ms(timing.symbol_gap_ms());
         }
     }
 
-    let _ = led.set_high();
+    let _ = led.off();
     Ok(())
 }

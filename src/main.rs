@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod led;
 mod morse;
 
 use cortex_m_rt::entry;
@@ -8,7 +9,10 @@ use hal::prelude::*;
 use panic_halt as _;
 use stm32f1xx_hal as hal;
 
-use crate::morse::{blink_morse, delay_ms, MorseTiming};
+use crate::{
+    led::Led,
+    morse::{blink_morse, delay_ms, MorseTiming},
+};
 
 #[entry]
 fn main() -> ! {
@@ -21,7 +25,8 @@ fn main() -> ! {
     let _clocks = rcc.cfgr.freeze(&mut flash.acr);
 
     let mut gpioc = peripherals.GPIOC.split();
-    let mut led = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
+    let pin = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
+    let mut led = Led::new(pin);
 
     let timing = MorseTiming::new(50);
     loop {
