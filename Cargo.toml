@@ -1,0 +1,28 @@
+[package]
+name = "blink"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "blink"
+test = false
+doctest = false
+bench = false
+
+[dependencies]
+cortex-m = "0.7.6"
+cortex-m-rt = "0.7.3"
+embedded-hal = "0.2.6"
+panic-halt = "0.2.0"
+stm32f1xx-hal = { version = "0.10", features = ["stm32f103", "rt"] }
+
+[profile.dev]
+codegen-units = 1
+debug = true
+debug-assertions = true
+
+[profile.release]
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
